@@ -140,9 +140,13 @@ document.getElementById("foto").addEventListener("change", function(e){
 // Tambah Data
 function tambahData(){
   var deskripsiTemuan = document.getElementById("deskripsiTemuan").value;
-  if(!deskripsiTemuan || !fotoData){
-    alert("Deskripsi Temuan dan Foto wajib diisi!");
+  if(!deskripsiTemuan){
+    alert("Isi deskripsi dulu!");
     return;
+  }
+  if(!fotoData){
+    alert ("Tunggu sampai foto muncul di preview");
+    return
   }
 
   var item = {
