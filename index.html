@@ -59,6 +59,7 @@
     </div>
 
     <button onclick="downloadExcel()" style="background: #27ae60;">Download Excel</button>
+    <button class="btn-hapus-semua" onclick="hapusSemua()">⚠️ Hapus Semua Data</button>
 </div>
 
 <script>
@@ -160,6 +161,16 @@ function hapusData(index) {
         listData.splice(index, 1);
         localStorage.setItem("gmp_data", JSON.stringify(listData));
         renderTable();
+    }
+}
+function hapusSemua() {
+    if (listData.length === 0) return alert("Data sudah kosong.");
+    
+    if(confirm("⚠️ Hapus SELURUH data? Pastikan Anda sudah download file Excel terlebih dahulu.")) {
+        listData = [];
+        localStorage.removeItem("gmp_data");
+        renderTable();
+        alert("🗑️ Semua data telah dibersihkan.");
     }
 }
 
