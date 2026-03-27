@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<!-- saved from url=(0059)file:///C:/Users/Mazzoni%20Rnd/Downloads/preview%20(7).html -->
-<html lang="id"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="id">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FINDING GMP</title>
 
@@ -54,7 +54,7 @@ img { width: 100px; border-radius: 5px; display: block; margin: auto; }
 
 <label>Dokumentasi <span style="color:red">*</span></label>
 <input type="file" id="foto" accept="image/*" capture="environment">
-<img id="previewFoto" src="file:///C:/Users/Mazzoni%20Rnd/Downloads/preview%20(7).html">
+<img id="previewFoto">
 
 <button onclick="tambahData()">Simpan</button>
 
@@ -92,6 +92,7 @@ window.onload = function() {
     }
   }
 }
+
 // Tambahkan Script Registrasi Service Worker di sini
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -237,9 +238,9 @@ async function downloadExcel() {
 
   const buffer = await workbook.xlsx.writeBuffer();
   const tanggal = new Date();
-  const filename = `CAPA_${tanggal.getFullYear()}-${tanggal.getMonth()+1}-${tanggal.getDate()}.xlsx`;
+  const filename = `GMP_${tanggal.getFullYear()}-${tanggal.getMonth()+1}-${tanggal.getDate()}.xlsx`;
   saveAs(new Blob([buffer]), filename);
 }
 </script>
-
-</body></html>
+</body>
+</html>
