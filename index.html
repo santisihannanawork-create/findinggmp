@@ -1,249 +1,199 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FINDING GMP</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FINDING GMP</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2e86de">
 
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2e86de">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
-<script src="./FINDING GMP_files/exceljs.min.js.download"></script>
-<script src="./FINDING GMP_files/FileSaver.min.js.download"></script>
-<script src="./FINDING GMP_files/exif-js"></script>
-
-<style>
-body { font-family: Arial, sans-serif; background: #f5f6fa; padding: 10px; }
-.container { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 100%; margin: auto; }
-h2 { text-align: center; font-size: 18px; }
-label { font-weight: bold; font-size: 14px; }
-textarea, input { width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 14px; }
-button { background: #2e86de; color: white; padding: 12px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; margin-bottom: 10px; }
-button:hover { background: #1b4f72; }
-.table { margin-top: 20px; width: 100%; border-collapse: collapse; font-size: 12px; }
-.table th, .table td { border: 1px solid #ccc; padding: 6px; text-align: left; }
-img { width: 100px; border-radius: 5px; display: block; margin: auto; }
-#previewFoto { width: 100px; display: block; margin-bottom: 10px; }
-</style>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f5f6fa; padding: 10px; margin: 0; }
+        .container { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); max-width: 500px; margin: auto; }
+        h2 { text-align: center; color: #2e86de; }
+        label { font-weight: bold; display: block; margin-top: 10px; font-size: 14px; }
+        textarea, input { width: 100%; padding: 10px; margin-top: 5px; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; }
+        button { background: #2e86de; color: white; padding: 12px; border: none; border-radius: 8px; width: 100%; font-size: 16px; margin-top: 15px; cursor: pointer; }
+        #previewFoto { width: 100%; margin-top: 10px; border-radius: 8px; display: none; border: 1px solid #ddd; }
+        .loading { display: none; color: orange; font-weight: bold; text-align: center; margin-top: 5px; }
+        .table-container { margin-top: 20px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background: #2e86de; color: white; }
+        .img-table { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
+    </style>
 </head>
 <body>
 
 <div class="container">
-<h2>FINDING GMP</h2>
+    <h2>FINDING GMP</h2>
+    
+    <label>Deskripsi Temuan <span style="color:red">*</span></label>
+    <textarea id="deskripsi" placeholder="Apa temuannya?"></textarea>
 
-<label>Deskripsi Temuan <span style="color:red">*</span></label>
-<textarea id="deskripsiTemuan"></textarea>
+    <label>Lokasi</label>
+    <input type="text" id="lokasi" placeholder="Area/Line">
 
-<label>Lokasi</label>
-<textarea id="lokasi"></textarea>
-  
-<label>Correction</label>
-<textarea id="correction"></textarea>
+    <label>Ambil Foto <span style="color:red">*</span></label>
+    <input type="file" id="inputFoto" accept="image/*" capture="environment">
+    
+    <div id="statusProses" class="loading">Memproses gambar... Mohon tunggu...</div>
+    <img id="previewFoto">
 
-<label>Root Cause</label>
-<textarea id="root"></textarea>
+    <button type="button" onclick="simpanData()">Simpan Temuan</button>
+    
+    <div class="table-container">
+        <table id="tabelData">
+            <thead>
+                <tr>
+                    <th>Deskripsi</th>
+                    <th>Foto</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
 
-<label>Corrective Action</label>
-<textarea id="corrective"></textarea>
-
-<label>PIC</label>
-<input type="text" id="pic">
-
-<label>Due Date</label>
-<input type="date" id="dueDate">
-
-<label>Dokumentasi <span style="color:red">*</span></label>
-<input type="file" id="foto" accept="image/*" capture="environment">
-<img id="previewFoto">
-
-<button onclick="tambahData()">Simpan</button>
-
-<table class="table" id="tabel">
-<thead>
-<tr>
-<th>Deskripsi Temuan</th>
-<th>Lokasi</th>
-<th>Correction</th>
-<th>Root Cause</th>
-<th>Corrective Action</th>
-<th>PIC</th>
-<th>Due Date</th>
-<th>Dokumentasi</th>
-<th>Aksi</th>
-</tr>
-</thead>
-<tbody></tbody>
-</table>
-
-<button onclick="downloadExcel()">Download Excel</button>
+    <button onclick="downloadExcel()" style="background: #27ae60;">Download Excel</button>
 </div>
 
 <script>
-let fotoData = "";
-let dataCAPA = [];
+let fotoBase64 = "";
+let listData = JSON.parse(localStorage.getItem("gmp_data")) || [];
 
-// Load data dari localStorage saat halaman dibuka
-window.onload = function() {
-  const savedData = localStorage.getItem("dataCAPA");
-  if (savedData) {
-    dataCAPA = JSON.parse(savedData);
-    for (let item of dataCAPA) {
-      addRowTable(item);
-    }
-  }
-}
-
-// Tambahkan Script Registrasi Service Worker di sini
+// 1. Registrasi Service Worker untuk Offline
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js')
-      .then(reg => console.log('Service Worker terdaftar!', reg))
-      .catch(err => console.log('Gagal daftar Service Worker', err));
-  });
+    navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 
-// Kamera & Preview
-document.getElementById("foto").addEventListener("change", function(e){
-  var file = e.target.files[0];
-  if(file){
-    var reader = new FileReader();
-    reader.onload = function(event){
-      var img = new Image();
-      img.onload = function(){
-        EXIF.getData(img, function() {
-          var orientation = EXIF.getTag(this, "Orientation") || 1;
-          var canvas = document.createElement("canvas");
-          var ctx = canvas.getContext("2d");
-          var width = img.width;
-          var height = img.height;
-          if (orientation > 4) { canvas.width = height; canvas.height = width; } else { canvas.width = width; canvas.height = height; }
-          switch(orientation) {
-            case 2: ctx.transform(-1, 0, 0, 1, width, 0); break;
-            case 3: ctx.transform(-1, 0, 0, -1, width, height); break;
-            case 4: ctx.transform(1, 0, 0, -1, 0, height); break;
-            case 5: ctx.transform(0, 1, 1, 0, 0, 0); break;
-            case 6: ctx.transform(0, 1, -1, 0, height, 0); break;
-            case 7: ctx.transform(0, -1, -1, 0, height, width); break;
-            case 8: ctx.transform(0, -1, 1, 0, 0, width); break;
-          }
-          ctx.drawImage(img, 0, 0);
-          fotoData = canvas.toDataURL("image/jpeg",0.8);
-          document.getElementById("previewFoto").src = fotoData;
-        });
-      }
-      img.src = event.target.result;
+// 2. Tampilkan data lama saat buka aplikasi
+window.onload = () => { renderTable(); };
+
+// 3. Proses Foto (Kompresi Otomatis agar Terdeteksi)
+document.getElementById("inputFoto").addEventListener("change", function(e) {
+    const file = e.target.files[0];
+    const status = document.getElementById("statusProses");
+    const preview = document.getElementById("previewFoto");
+
+    if (file) {
+        status.style.display = "block";
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const img = new Image();
+            img.onload = function() {
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+
+                // Perkecil ukuran ke 800px agar memori aman
+                const MAX_WIDTH = 800;
+                const scale = MAX_WIDTH / img.width;
+                canvas.width = MAX_WIDTH;
+                canvas.height = img.height * scale;
+
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                
+                // Simpan ke variabel global
+                fotoBase64 = canvas.toDataURL("image/jpeg", 0.7);
+                
+                // Tampilkan Preview
+                preview.src = fotoBase64;
+                preview.style.display = "block";
+                status.style.display = "none";
+            };
+            img.src = event.target.result;
+        };
+        reader.readAsDataURL(file);
     }
-    reader.readAsDataURL(file);
-  }
 });
 
-// Tambah Data
-function tambahData(){
-  var deskripsiTemuan = document.getElementById("deskripsiTemuan").value;
-  if(!deskripsiTemuan){
-    alert("Isi deskripsi dulu!");
-    return;
-  }
-  if(!fotoData){
-    alert ("Tunggu sampai foto muncul di preview");
-    return
-  }
+// 4. Fungsi Simpan
+function simpanData() {
+    const deskripsi = document.getElementById("deskripsi").value;
+    const lokasi = document.getElementById("lokasi").value;
 
-  var item = {
-    deskripsiTemuan,
-    lokasi: document.getElementById("lokasi").value,
-    correction: document.getElementById("correction").value,
-    root: document.getElementById("root").value,
-    corrective: document.getElementById("corrective").value,
-    pic: document.getElementById("pic").value,
-    dueDate: document.getElementById("dueDate").value,
-    foto: fotoData
-  };
-
-  dataCAPA.push(item);
-  localStorage.setItem("dataCAPA", JSON.stringify(dataCAPA));
-  addRowTable(item);
-
-  // reset
-  document.getElementById("deskripsiTemuan").value = "";
-  document.getElementById("lokasi").value = "";
-  document.getElementById("correction").value = "";
-  document.getElementById("root").value = "";
-  document.getElementById("corrective").value = "";
-  document.getElementById("pic").value = "";
-  document.getElementById("dueDate").value = "";
-  document.getElementById("foto").value = "";
-  document.getElementById("previewFoto").src = "";
-  fotoData = "";
-}
-
-// Tambah Row ke Tabel
-function addRowTable(item){
-  var table = document.getElementById("tabel").getElementsByTagName('tbody')[0];
-  var newRow = table.insertRow();
-
-  newRow.insertCell(0).innerHTML = item.deskripsiTemuan;
-  newRow.insertCell(1).innerHTML = item.lokasi;
-  newRow.insertCell(2).innerHTML = item.correction;
-  newRow.insertCell(3).innerHTML = item.root;
-  newRow.insertCell(4).innerHTML = item.corrective;
-  newRow.insertCell(5).innerHTML = item.pic;
-  newRow.insertCell(6).innerHTML = item.dueDate;
-  newRow.insertCell(7).innerHTML = item.foto ? '<img src="'+item.foto+'">' : '-';
-
-  var btn = document.createElement("button");
-  btn.innerText = "Hapus";
-  btn.style.background = "#e74c3c";
-  btn.style.fontSize = "12px";
-  btn.onclick = function(){
-    if(confirm("Hapus data ini?")){
-      var index = this.closest("tr").rowIndex - 1;
-      dataCAPA.splice(index,1);
-      localStorage.setItem("dataCAPA", JSON.stringify(dataCAPA));
-      this.closest("tr").remove();
+    if (!deskripsi || !fotoBase64) {
+        alert("⚠️ Deskripsi dan Foto HARUS diisi!");
+        return;
     }
-  };
-  newRow.insertCell(8).appendChild(btn);
+
+    const dataBaru = {
+        deskripsi,
+        lokasi,
+        foto: fotoBase64,
+        waktu: new Date().toLocaleString()
+    };
+
+    listData.push(dataBaru);
+    localStorage.setItem("gmp_data", JSON.stringify(listData));
+    
+    // Reset Form
+    document.getElementById("deskripsi").value = "";
+    document.getElementById("lokasi").value = "";
+    document.getElementById("inputFoto").value = "";
+    document.getElementById("previewFoto").style.display = "none";
+    fotoBase64 = "";
+
+    renderTable();
+    alert("✅ Data tersimpan secara lokal!");
 }
 
-// Download Excel
+// 5. Render Tabel
+function renderTable() {
+    const tbody = document.querySelector("#tabelData tbody");
+    tbody.innerHTML = "";
+    listData.forEach((item, index) => {
+        const row = `<tr>
+            <td>${item.deskripsi}<br><small>${item.lokasi}</small></td>
+            <td><img src="${item.foto}" class="img-table"></td>
+            <td><button onclick="hapusData(${index})" style="background:red; padding:5px; font-size:10px;">Hapus</button></td>
+        </tr>`;
+        tbody.innerHTML += row;
+    });
+}
+
+function hapusData(index) {
+    if(confirm("Hapus data ini?")) {
+        listData.splice(index, 1);
+        localStorage.setItem("gmp_data", JSON.stringify(listData));
+        renderTable();
+    }
+}
+
+// 6. Download ke Excel
 async function downloadExcel() {
-  const workbook = new ExcelJS.Workbook();
-  const sheet = workbook.addWorksheet('CAPA');
-  sheet.columns = [
-    { header: 'Deskripsi', key: 'deskripsiTemuan', width: 25 },
-    { header: 'Lokasi', key: 'lokasi', width: 25 },
-    { header: 'Correction', key: 'correction', width: 25 },
-    { header: 'Root Cause', key: 'root', width: 25 },
-    { header: 'Corrective Action', key: 'corrective', width: 25 },
-    { header: 'PIC', key: 'pic', width: 15 },
-    { header: 'Due Date', key: 'dueDate', width: 15 },
-    { header: 'Foto', key: 'foto', width: 20 }
-  ];
+    if (listData.length === 0) return alert("Belum ada data!");
+    
+    const workbook = new ExcelJS.Workbook();
+    const sheet = workbook.addWorksheet('Temuan GMP');
 
-  for (let i=0; i<dataCAPA.length; i++){
-    let item = dataCAPA[i];
-    let row = sheet.addRow([
-      item.deskripsiTemuan,
-      item.lokasi,
-      item.correction,
-      item.root,
-      item.corrective,
-      item.pic,
-      item.dueDate,
-      ''
-    ]);
-    row.height = 80;
-    if(item.foto){
-      const imageId = workbook.addImage({ base64:item.foto, extension:'jpeg' });
-      sheet.addImage(imageId, { tl:{col:7,row:row.number-1}, ext:{width:100,height:100} });
+    sheet.columns = [
+        { header: 'Waktu', key: 'waktu', width: 20 },
+        { header: 'Deskripsi', key: 'deskripsi', width: 30 },
+        { header: 'Lokasi', key: 'lokasi', width: 15 },
+        { header: 'Foto', key: 'foto', width: 25 }
+    ];
+
+    for (let i = 0; i < listData.length; i++) {
+        const item = listData[i];
+        const row = sheet.addRow([item.waktu, item.deskripsi, item.lokasi, '']);
+        row.height = 100;
+        
+        const imageId = workbook.addImage({
+            base64: item.foto,
+            extension: 'jpeg',
+        });
+        sheet.addImage(imageId, {
+            tl: { col: 3, row: i + 1 },
+            ext: { width: 120, height: 120 }
+        });
     }
-  }
 
-  const buffer = await workbook.xlsx.writeBuffer();
-  const tanggal = new Date();
-  const filename = `GMP_${tanggal.getFullYear()}-${tanggal.getMonth()+1}-${tanggal.getDate()}.xlsx`;
-  saveAs(new Blob([buffer]), filename);
+    const buffer = await workbook.xlsx.writeBuffer();
+    saveAs(new Blob([buffer]), `Laporan_GMP_${new Date().getTime()}.xlsx`);
 }
 </script>
 </body>
